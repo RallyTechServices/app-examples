@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GridboardMenuOverride</title>
+
+    <script type="text/javascript" src="/apps/2.0/sdk.js"></script>
+
+    <script type="text/javascript">
+        Rally.onReady(function () {
+                    Ext.define('ExampleRecordMenuItem', {
+        extend: 'Rally.ui.menu.item.RecordMenuItem',
+        alias: 'widget.examplerecordmenuitem',
+
+        clickHideDelay: 1,
+
+        config: {
+
+            /**
+             * @cfg {Rally.data.wsapi.Model}
+             * The record of the menu
+             */
+            record: undefined,
+
+            /**
+             * @cfg {Function}
+             * This is called when a menu item is clicked
+             */
+            handler: function () {
+                console.log('click example record menu item');
+            },
+
+            /**
+             * @cfg {Function}
+             *
+             * A function that should return true if this menu item should show.
+             * @param record {Rally.data.wsapi.Model}
+             * @return {Boolean}
+             */
+            predicate: function (record) {
+                return true;
+            },
+
+            /**
+             * @cfg {String}
+             * The display string
+             */
+            text: 'Example Record Menu Item...'
+
+        },
+
+        constructor:function (config) {
+            this.initConfig(config);
+            this.callParent(arguments);
+        }
+    });
+
+                Ext.override(Rally.ui.menu.DefaultRecordMenu, {
+    //Override the getMenuItems function to return only the menu items that we are interested in.
+    _getMenuItems: function() {
+        var record = this.getRecord(),
+            items = [],
+            popoverPlacement = this.popoverPlacement || Rally.ui.popover.Popover.DEFAULT_PLACEMENT;
+
+        items.push({
+            xtype: 'examplerecordmenuitem',
+            view: this.view,
+            record: record
+        });
+
+        return items;
+    }
+});
+                Ext.define('ExampleBulkRecordMenuItem', {
+    alias: 'widget.examplebulkrecordmenuitem',
+    extend: 'Rally.ui.menu.bulk.MenuItem',
+
+    config: {
+        onBeforeAction: function(){
+//            console.log('onbeforeaction');
+        },
+
+        /**
+         * @cfg {Function} onActionComplete a function called when the specified menu item action has completed
+         * @param Rally.data.wsapi.Model[] onActionComplete.successfulRecords any successfully modified records
+         * @param Rally.data.wsapi.Model[] onActionComplete.unsuccessfulRecords any records which failed to be updated
+         */
+        onActionComplete: function(){
+            console.log('onActionComplete');
+        },
+
+        text: 'Example Menu Item...',
+
+        handler: function () {
+            console.log('example menu item clicked');
+        },
+        predicate: function (records) {
+            return _.every(records, function (record) {
+                return record;
+            });
+        }
+    }
+});
+                Ext.define('CustomApp', {
+    extend: 'Rally.app.App',
+    componentCls: 'app',
+    launch: function() {
+        //Write app code here
+        this._buildStore();
+    },
+    _buildStore: function(){
+
+        Ext.create('Rally.data.wsapi.TreeStoreBuilder').build({
+            models: this._getModels(),
+            enableHierarchy: true,
+            autoLoad: true
+        }).then({
+            success: this._createTreeGrid,
+            scope: this
+        });
+    },
+    _getModels: function(){
+        return ['portfolioitem/feature'];
+    },
+    _createTreeGrid: function(store){
+
+        //If we don't destroy a grid that already exists, then a duplicate grid will
+        //be created.
+        if (this.down('rallygridboard')){
+            this.down('rallygridboard').destroy();
+        }
+
+        this.add({
+            xtype: 'rallygridboard',
+            context: this.getContext(),
+            modelNames: this._getModels(),
+            toggleState: 'grid',
+            gridConfig: {
+                store: store,
+                storeConfig: {
+                    pageSize: 200
+                },
+                enableBulkEdit: true,
+                columnCfgs: [
+                    'Name',
+                    'Project'
+                ],
+                bulkEditConfig: {
+                    items: [{
+                        xtype: 'examplebulkrecordmenuitem'
+                    }]
+                }
+            },
+            height: this.getHeight()
+        });
+    }
+});
+
+
+            Rally.launchApp('CustomApp', {
+                name:"GridboardMenuOverride",
+	            parentRepos:""
+            });
+
+        });
+    </script>
+
+
+    <style type="text/css">
+        .app {
+  /* Add app styles here */
+}
+
+    </style>
+</head>
+<body>
+</body>
+</html>
