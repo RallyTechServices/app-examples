@@ -1,0 +1,15 @@
+{
+   "name": "GridboardMenuOverride",
+   "className": "CustomApp",
+   "server": "https://rally1.rallydev.com",
+   "sdk": "2.0",
+   "javascript": [
+      "ExampleRecordMenuItem.js",
+      "ExampleRecordMenuOverride.js",
+      "ExampleBulkRecordMenuItem.js",
+      "App.js"
+   ],
+   "css": [
+      "app.css"
+   ]
+}

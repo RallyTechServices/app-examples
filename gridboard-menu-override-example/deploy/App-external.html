@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GridboardMenuOverride</title>
+
+    <script type="text/javascript" src="https://rally1.rallydev.com/apps/2.0/sdk.js"></script>
+
+    <script type="text/javascript">
+        Rally.onReady(function () {
+                Ext.define("ExampleRecordMenuItem",{extend:"Rally.ui.menu.item.RecordMenuItem",alias:"widget.examplerecordmenuitem",clickHideDelay:1,config:{record:void 0,handler:function(){console.log("click example record menu item")},predicate:function(record){return!0},text:"Example Record Menu Item..."},constructor:function(config){this.initConfig(config),this.callParent(arguments)}});
+                Ext.override(Rally.ui.menu.DefaultRecordMenu,{_getMenuItems:function(){var record=this.getRecord(),items=[],popoverPlacement=this.popoverPlacement||Rally.ui.popover.Popover.DEFAULT_PLACEMENT;return items.push({xtype:"examplerecordmenuitem",view:this.view,record:record}),items}});
+                Ext.define("ExampleBulkRecordMenuItem",{alias:"widget.examplebulkrecordmenuitem",extend:"Rally.ui.menu.bulk.MenuItem",config:{onBeforeAction:function(){},onActionComplete:function(){console.log("onActionComplete")},text:"Example Menu Item...",handler:function(){console.log("example menu item clicked")},predicate:function(records){return _.every(records,function(record){return record})}}});
+                Ext.define("CustomApp",{extend:"Rally.app.App",componentCls:"app",launch:function(){this._buildStore()},_buildStore:function(){Ext.create("Rally.data.wsapi.TreeStoreBuilder").build({models:this._getModels(),enableHierarchy:!0,autoLoad:!0}).then({success:this._createTreeGrid,scope:this})},_getModels:function(){return["portfolioitem/feature"]},_createTreeGrid:function(store){this.down("rallygridboard")&&this.down("rallygridboard").destroy(),this.add({xtype:"rallygridboard",context:this.getContext(),modelNames:this._getModels(),toggleState:"grid",gridConfig:{store:store,storeConfig:{pageSize:200},enableBulkEdit:!0,columnCfgs:["Name","Project"],bulkEditConfig:{items:[{xtype:"examplebulkrecordmenuitem"}]}},height:this.getHeight()})}});
+
+            Rally.launchApp('CustomApp', {
+                name:"GridboardMenuOverride",
+	            parentRepos:""
+            });
+
+        });
+    </script>
+
+
+    <style type="text/css">
+        
+    </style>
+</head>
+<body>
+</body>
+</html>
